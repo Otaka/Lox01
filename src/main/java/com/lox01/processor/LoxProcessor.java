@@ -8,7 +8,7 @@ import com.lox01.memmanager.MemoryController;
 public class LoxProcessor {
 
     private MemoryController memoryController;
-
+    private static final int FINAL_ADDRESS=0x7FFFFFFF;
     private int[] registers = new int[8];//R1,R2,R3,R4,RG,SP,PC,ZERO_REG
     private static final int R1 = 0;
     private static final int R2 = 1;
@@ -429,7 +429,7 @@ public class LoxProcessor {
                 }
                 case 46://calla POS32
                 {
-                    int newPosition = readMem32PC();
+                    int newPosition = readMem32PC()&FINAL_ADDRESS;
                     int oldPc = registers[PC];
                     pushValue(oldPc);
                     registers[PC] = newPosition;
@@ -440,20 +440,20 @@ public class LoxProcessor {
                     int newPosition = readMem32PC();
                     int oldPc = registers[PC];
                     pushValue(oldPc);
-                    registers[PC] = oldPc + newPosition;
+                    registers[PC] = (oldPc + newPosition)&FINAL_ADDRESS;
                     break;
                 }
                 case 48://call REG
                 {
                     readRegPointers();
-                    int newPosition = registers[internalRegister1];
+                    int newPosition = registers[internalRegister1]&FINAL_ADDRESS;
                     pushValue(registers[PC]);
                     registers[PC] = newPosition;
                     break;
                 }
                 case 49://ret
                 {
-                    int value = popValue();
+                    int value = popValue()&FINAL_ADDRESS;
                     registers[PC] = value;
                     break;
                 }
@@ -512,21 +512,21 @@ public class LoxProcessor {
                 {
                     readRegPointers();
                     int address = registers[internalRegister2] + registers[internalIndexRegister];
-                    registers[internalRegister1] = memoryController.getMem8(address);
+                    registers[internalRegister1] = memoryController.getMem8(address&FINAL_ADDRESS);
                     break;
                 }
                 case 63://MEM8 REG, REG:[REG*2]
                 {
                     readRegPointers();
                     int address = registers[internalRegister2] + (registers[internalIndexRegister] * 2);
-                    registers[internalRegister1] = memoryController.getMem8(address);
+                    registers[internalRegister1] = memoryController.getMem8(address&FINAL_ADDRESS);
                     break;
                 }
                 case 64://MEM8 REG, REG:[REG*4]
                 {
                     readRegPointers();
                     int address = registers[internalRegister2] + (registers[internalIndexRegister] * 4);
-                    registers[internalRegister1] = memoryController.getMem8(address);
+                    registers[internalRegister1] = memoryController.getMem8(address&FINAL_ADDRESS);
                     break;
                 }
                 case 65://MEM8 REG, REG:[REG*1+offset32]
@@ -534,7 +534,7 @@ public class LoxProcessor {
                     readRegPointers();
                     int offset = readMem32PC();
                     int address = registers[internalRegister2] + registers[internalIndexRegister] + offset;
-                    registers[internalRegister1] = memoryController.getMem8(address);
+                    registers[internalRegister1] = memoryController.getMem8(address&FINAL_ADDRESS);
                     break;
                 }
                 case 66://MEM8 REG, REG:[REG*2+offset32]
@@ -542,7 +542,7 @@ public class LoxProcessor {
                     readRegPointers();
                     int offset = readMem32PC();
                     int address = registers[internalRegister2] + registers[internalIndexRegister] * 2 + offset;
-                    registers[internalRegister1] = memoryController.getMem8(address);
+                    registers[internalRegister1] = memoryController.getMem8(address&FINAL_ADDRESS);
                     break;
                 }
                 case 67://MEM8 REG, REG:[REG*4+offset32]
@@ -550,28 +550,28 @@ public class LoxProcessor {
                     readRegPointers();
                     int offset = readMem32PC();
                     int address = registers[internalRegister2] + registers[internalIndexRegister] * 4 + offset;
-                    registers[internalRegister1] = memoryController.getMem8(address);
+                    registers[internalRegister1] = memoryController.getMem8(address&FINAL_ADDRESS);
                     break;
                 }
                 case 68://MEM8 REG:[REG*1],REG
                 {
                     readRegPointers();
                     int address = registers[internalRegister2] + registers[internalIndexRegister] * 1;
-                    memoryController.setMem8(address, (byte) registers[internalRegister1]);
+                    memoryController.setMem8(address&FINAL_ADDRESS, (byte) registers[internalRegister1]);
                     break;
                 }
                 case 69://MEM8 REG:[REG*2],REG
                 {
                     readRegPointers();
                     int address = registers[internalRegister2] + registers[internalIndexRegister] * 2;
-                    memoryController.setMem8(address, (byte) registers[internalRegister1]);
+                    memoryController.setMem8(address&FINAL_ADDRESS, (byte) registers[internalRegister1]);
                     break;
                 }
                 case 70://MEM8 REG:[REG*4],REG
                 {
                     readRegPointers();
                     int address = registers[internalRegister2] + registers[internalIndexRegister] * 4;
-                    memoryController.setMem8(address, (byte) registers[internalRegister1]);
+                    memoryController.setMem8(address&FINAL_ADDRESS, (byte) registers[internalRegister1]);
                     break;
                 }
                 case 71://MEM8 REG:[REG*1+offset32],REG
@@ -579,7 +579,7 @@ public class LoxProcessor {
                     readRegPointers();
                     int offset = readMem32PC();
                     int address = registers[internalRegister2] + registers[internalIndexRegister] * 1 + offset;
-                    memoryController.setMem8(address, (byte) registers[internalRegister1]);
+                    memoryController.setMem8(address&FINAL_ADDRESS, (byte) registers[internalRegister1]);
                     break;
                 }
                 case 72://MEM8 REG:[REG*2+offset32],REG
@@ -587,7 +587,7 @@ public class LoxProcessor {
                     readRegPointers();
                     int offset = readMem32PC();
                     int address = registers[internalRegister2] + registers[internalIndexRegister] * 2 + offset;
-                    memoryController.setMem8(address, (byte) registers[internalRegister1]);
+                    memoryController.setMem8(address&FINAL_ADDRESS, (byte) registers[internalRegister1]);
                     break;
                 }
                 case 73://MEM8 REG:[REG*4+offset32],REG
@@ -595,7 +595,7 @@ public class LoxProcessor {
                     readRegPointers();
                     int offset = readMem32PC();
                     int address = registers[internalRegister2] + registers[internalIndexRegister] * 2 + offset;
-                    memoryController.setMem8(address, (byte) registers[internalRegister1]);
+                    memoryController.setMem8(address&FINAL_ADDRESS, (byte) registers[internalRegister1]);
                     break;
                 }
 
@@ -603,21 +603,21 @@ public class LoxProcessor {
                 {
                     readRegPointers();
                     int address = registers[internalRegister2] + registers[internalIndexRegister];
-                    registers[internalRegister1] = memoryController.getMem16(address);
+                    registers[internalRegister1] = memoryController.getMem16(address&FINAL_ADDRESS);
                     break;
                 }
                 case 75://MEM16 REG, REG:[REG*2]
                 {
                     readRegPointers();
                     int address = registers[internalRegister2] + (registers[internalIndexRegister] * 2);
-                    registers[internalRegister1] = memoryController.getMem16(address);
+                    registers[internalRegister1] = memoryController.getMem16(address&FINAL_ADDRESS);
                     break;
                 }
                 case 76://MEM16 REG, REG:[REG*4]
                 {
                     readRegPointers();
                     int address = registers[internalRegister2] + (registers[internalIndexRegister] * 4);
-                    registers[internalRegister1] = memoryController.getMem16(address);
+                    registers[internalRegister1] = memoryController.getMem16(address&FINAL_ADDRESS);
                     break;
                 }
                 case 77://MEM16 REG, REG:[REG*1+offset32]
@@ -625,7 +625,7 @@ public class LoxProcessor {
                     readRegPointers();
                     int offset = readMem32PC();
                     int address = registers[internalRegister2] + registers[internalIndexRegister] + offset;
-                    registers[internalRegister1] = memoryController.getMem16(address);
+                    registers[internalRegister1] = memoryController.getMem16(address&FINAL_ADDRESS);
                     break;
                 }
                 case 78://MEM16 REG, REG:[REG*2+offset32]
@@ -633,7 +633,7 @@ public class LoxProcessor {
                     readRegPointers();
                     int offset = readMem32PC();
                     int address = registers[internalRegister2] + registers[internalIndexRegister] * 2 + offset;
-                    registers[internalRegister1] = memoryController.getMem16(address);
+                    registers[internalRegister1] = memoryController.getMem16(address&FINAL_ADDRESS);
                     break;
                 }
                 case 79://MEM16 REG, REG:[REG*4+offset32]
@@ -641,28 +641,28 @@ public class LoxProcessor {
                     readRegPointers();
                     int offset = readMem32PC();
                     int address = registers[internalRegister2] + registers[internalIndexRegister] * 4 + offset;
-                    registers[internalRegister1] = memoryController.getMem16(address);
+                    registers[internalRegister1] = memoryController.getMem16(address&FINAL_ADDRESS);
                     break;
                 }
                 case 80://MEM16 REG:[REG*1],REG
                 {
                     readRegPointers();
                     int address = registers[internalRegister2] + registers[internalIndexRegister] * 1;
-                    memoryController.setMem16(address, (short) registers[internalRegister1]);
+                    memoryController.setMem16(address&FINAL_ADDRESS, (short) registers[internalRegister1]);
                     break;
                 }
                 case 81://MEM16 REG:[REG*2],REG
                 {
                     readRegPointers();
                     int address = registers[internalRegister2] + registers[internalIndexRegister] * 2;
-                    memoryController.setMem16(address, (short) registers[internalRegister1]);
+                    memoryController.setMem16(address&FINAL_ADDRESS, (short) registers[internalRegister1]);
                     break;
                 }
                 case 82://MEM16 REG:[REG*4],REG
                 {
                     readRegPointers();
                     int address = registers[internalRegister2] + registers[internalIndexRegister] * 4;
-                    memoryController.setMem16(address, (short) registers[internalRegister1]);
+                    memoryController.setMem16(address&FINAL_ADDRESS, (short) registers[internalRegister1]);
                     break;
                 }
                 case 83://MEM16 REG:[REG*1+offset32],REG
@@ -670,7 +670,7 @@ public class LoxProcessor {
                     readRegPointers();
                     int offset = readMem32PC();
                     int address = registers[internalRegister2] + registers[internalIndexRegister] * 1 + offset;
-                    memoryController.setMem16(address, (short) registers[internalRegister1]);
+                    memoryController.setMem16(address&FINAL_ADDRESS, (short) registers[internalRegister1]);
                     break;
                 }
                 case 84://MEM16 REG:[REG*2+offset32],REG
@@ -678,7 +678,7 @@ public class LoxProcessor {
                     readRegPointers();
                     int offset = readMem32PC();
                     int address = registers[internalRegister2] + registers[internalIndexRegister] * 2 + offset;
-                    memoryController.setMem16(address, (short) registers[internalRegister1]);
+                    memoryController.setMem16(address&FINAL_ADDRESS, (short) registers[internalRegister1]);
                     break;
                 }
                 case 85://MEM16 REG:[REG*4+offset32],REG
@@ -686,7 +686,7 @@ public class LoxProcessor {
                     readRegPointers();
                     int offset = readMem32PC();
                     int address = registers[internalRegister2] + registers[internalIndexRegister] * 2 + offset;
-                    memoryController.setMem16(address, (short) registers[internalRegister1]);
+                    memoryController.setMem16(address&FINAL_ADDRESS, (short) registers[internalRegister1]);
                     break;
                 }
 
@@ -694,21 +694,21 @@ public class LoxProcessor {
                 {
                     readRegPointers();
                     int address = registers[internalRegister2] + registers[internalIndexRegister];
-                    registers[internalRegister1] = memoryController.getMem32(address);
+                    registers[internalRegister1] = memoryController.getMem32(address&FINAL_ADDRESS);
                     break;
                 }
                 case 87://MEM32 REG, REG:[REG*2]
                 {
                     readRegPointers();
                     int address = registers[internalRegister2] + (registers[internalIndexRegister] * 2);
-                    registers[internalRegister1] = memoryController.getMem32(address);
+                    registers[internalRegister1] = memoryController.getMem32(address&FINAL_ADDRESS);
                     break;
                 }
                 case 88://MEM32 REG, REG:[REG*4]
                 {
                     readRegPointers();
                     int address = registers[internalRegister2] + (registers[internalIndexRegister] * 4);
-                    registers[internalRegister1] = memoryController.getMem32(address);
+                    registers[internalRegister1] = memoryController.getMem32(address&FINAL_ADDRESS);
                     break;
                 }
                 case 89://MEM32 REG, REG:[REG*1+offset32]
@@ -716,7 +716,7 @@ public class LoxProcessor {
                     readRegPointers();
                     int offset = readMem32PC();
                     int address = registers[internalRegister2] + registers[internalIndexRegister] + offset;
-                    registers[internalRegister1] = memoryController.getMem32(address);
+                    registers[internalRegister1] = memoryController.getMem32(address&FINAL_ADDRESS);
                     break;
                 }
                 case 90://MEM32 REG, REG:[REG*2+offset32]
@@ -724,7 +724,7 @@ public class LoxProcessor {
                     readRegPointers();
                     int offset = readMem32PC();
                     int address = registers[internalRegister2] + registers[internalIndexRegister] * 2 + offset;
-                    registers[internalRegister1] = memoryController.getMem32(address);
+                    registers[internalRegister1] = memoryController.getMem32(address&FINAL_ADDRESS);
                     break;
                 }
                 case 91://MEM32 REG, REG:[REG*4+offset32]
@@ -732,28 +732,28 @@ public class LoxProcessor {
                     readRegPointers();
                     int offset = readMem32PC();
                     int address = registers[internalRegister2] + registers[internalIndexRegister] * 4 + offset;
-                    registers[internalRegister1] = memoryController.getMem32(address);
+                    registers[internalRegister1] = memoryController.getMem32(address&FINAL_ADDRESS);
                     break;
                 }
                 case 92://MEM32 REG:[REG*1],REG
                 {
                     readRegPointers();
                     int address = registers[internalRegister2] + registers[internalIndexRegister] * 1;
-                    memoryController.setMem32(address, registers[internalRegister1]);
+                    memoryController.setMem32(address&FINAL_ADDRESS, registers[internalRegister1]);
                     break;
                 }
                 case 93://MEM32 REG:[REG*2],REG
                 {
                     readRegPointers();
                     int address = registers[internalRegister2] + registers[internalIndexRegister] * 2;
-                    memoryController.setMem32(address, registers[internalRegister1]);
+                    memoryController.setMem32(address&FINAL_ADDRESS, registers[internalRegister1]);
                     break;
                 }
                 case 94://MEM32 REG:[REG*4],REG
                 {
                     readRegPointers();
                     int address = registers[internalRegister2] + registers[internalIndexRegister] * 4;
-                    memoryController.setMem32(address, registers[internalRegister1]);
+                    memoryController.setMem32(address&FINAL_ADDRESS, registers[internalRegister1]);
                     break;
                 }
                 case 95://MEM32 REG:[REG*1+offset32],REG
@@ -761,7 +761,7 @@ public class LoxProcessor {
                     readRegPointers();
                     int offset = readMem32PC();
                     int address = registers[internalRegister2] + registers[internalIndexRegister] * 1 + offset;
-                    memoryController.setMem32(address, registers[internalRegister1]);
+                    memoryController.setMem32(address&FINAL_ADDRESS, registers[internalRegister1]);
                     break;
                 }
                 case 96://MEM32 REG:[REG*2+offset32],REG
@@ -769,7 +769,7 @@ public class LoxProcessor {
                     readRegPointers();
                     int offset = readMem32PC();
                     int address = registers[internalRegister2] + registers[internalIndexRegister] * 2 + offset;
-                    memoryController.setMem32(address, registers[internalRegister1]);
+                    memoryController.setMem32(address&FINAL_ADDRESS, registers[internalRegister1]);
                     break;
                 }
                 case 97://MEM32 REG:[REG*4+offset32],REG
@@ -777,7 +777,7 @@ public class LoxProcessor {
                     readRegPointers();
                     int offset = readMem32PC();
                     int address = registers[internalRegister2] + registers[internalIndexRegister] * 2 + offset;
-                    memoryController.setMem32(address, registers[internalRegister1]);
+                    memoryController.setMem32(address&FINAL_ADDRESS, registers[internalRegister1]);
                     break;
                 }
             }
@@ -864,13 +864,14 @@ public class LoxProcessor {
 
     private int readMem32PC() {
         int val = memoryController.getMem32(registers[PC]);
-        registers[PC] += 4;
+        registers[PC] =(registers[PC]+ 4)&FINAL_ADDRESS;
+        
         return val;
     }
 
     private int readMem8PC() {
         int val = memoryController.getMem8(registers[PC]);
-        registers[PC]++;
+        registers[PC]=(registers[PC]+ 1)&FINAL_ADDRESS;
         return val;
     }
 

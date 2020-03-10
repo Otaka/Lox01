@@ -1,5 +1,8 @@
 package com.loxassembler.parser;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author Dmitry
  */
@@ -7,6 +10,7 @@ public class MatchedToken {
 
     private StringMatcher matcher;
     private String text;
+    private Map<String, StringWithPosition> matchedGroups = new HashMap<>();
     private int position;
     private int length;
 
@@ -18,6 +22,10 @@ public class MatchedToken {
     }
 
     public MatchedToken() {
+    }
+
+    public Map<String, StringWithPosition> getMatchedGroups() {
+        return matchedGroups;
     }
 
     public void setLength(int length) {
